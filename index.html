@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YADA BIBLIA</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --active-cap: #e0e7ff;
+      --active-cap-text: #312e81;
+    }
+
+    body.light-theme {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent-color: #4f46e5;
+      --accent-hover: #4338ca;
+      --active-cap: #4f46e5;
+      --active-cap-text: #ffffff;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      padding-bottom: 80px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* ENCABEZADO Y NAVEGACIÓN */
+    header {
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-icon {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-icon:hover {
+      background: var(--card-border);
+      transform: translateY(-1px);
+    }
+
+    /* GAMIFICACIÓN: INSIGNIAS HEADER */
+    .badge-recompensa {
+      background-color: var(--bg-color);
+      border: 1px solid var(--card-border);
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* LOGO CLICABLE PARA EL MENÚ */
+    .brand-container {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .brand-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-title::after {
+      content: '▾';
+      font-size: 0.8rem;
+      -webkit-text-fill-color: var(--text-muted);
+    }
+
+    .ruta-nav {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* MENÚ DESPLEGABLE EN EL LOGO */
+    .menu-desplegable {
+      position: absolute;
+      left: 0;
+      top: 45px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      width: 220px;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 200;
+      backdrop-filter: blur(8px);
+    }
+
+    .menu-desplegable.activo {
+      display: flex;
+    }
+
+    .menu-item {
+      padding: 12px 16px;
+      background: none;
+      border: none;
+      text-align: left;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background 0.2s;
+    }
+
+    .menu-item:hover {
+      background-color: var(--card-border);
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    main {
+      max-width: 900px;
+      margin: 25px auto;
+      padding: 0 16px;
+    }
+
+    /* VISTAS */
+    .oculto {
+      display: none !important;
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 15px;
+    }
+
+    .card-seleccion {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 22px;
+      border-radius: 14px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .card-seleccion:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.25);
+      border-color: var(--accent-color);
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+
+    .card-seleccion.completado::after {
+      content: '🏆';
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 0.9rem;
+    }
+
+    /* OPCIONES DE LA PANTALLA DE INICIO */
+    .seccion-inicio-opciones {
+      margin-top: 35px;
+      padding-top: 20px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .seccion-inicio-opciones h3 {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+    }
+
+    .grid-opciones-inicio {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .btn-opcion-inicio {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 14px 18px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .btn-opcion-inicio:hover {
+      border-color: var(--accent-color);
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+
+    /* VISTA DE LECTURA */
+    .barra-capitulos {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 12px 0;
+      margin-bottom: 20px;
+      scrollbar-width: thin;
+    }
+
+    .btn-cap {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .btn-cap:hover {
+      border-color: var(--accent-color);
+    }
+
+    .btn-cap.activo {
+      background-color: var(--active-cap);
+      color: var(--active-cap-text);
+      border-color: var(--active-cap);
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .header-capitulo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .audio-controles {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      position: relative;
+    }
+
+    /* PANEL CONFIGURACIÓN DISCRETO / POPUP */
+    .popover-config {
+      position: absolute;
+      top: 45px;
+      right: 0;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 150;
+      min-width: 210px;
+      backdrop-filter: blur(8px);
+    }
+
+    .popover-config.activo {
+      display: flex;
+    }
+
+    .config-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .select-config {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.9rem;
+    }
+
+    .btn-audio-global {
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      transition: transform 0.1s, box-shadow 0.2s;
+    }
+
+    .btn-audio-global:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+    }
+
+    /* CONTROLES FLOTANTES INFERIORES DE AUDIO */
+    .reproductor-flotante {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--accent-color);
+      border-radius: 30px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      z-index: 250;
+      backdrop-filter: blur(10px);
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .btn-flotante-accion {
+      background: var(--accent-color);
+      border: none;
+      color: white;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.1s;
+    }
+
+    .btn-flotante-accion:hover {
+      transform: scale(1.08);
+    }
+
+    .btn-flotante-detener {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid #ef4444;
+    }
+
+    /* ESTILOS DE LECTURA POR BLOQUES / PALABRAS */
+    .bloque-texto-contenedor {
+      line-height: 2.2;
+      font-size: 1.15rem;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 24px;
+      border-radius: 14px;
+    }
+
+    .num-ver-inline {
+      font-weight: 800;
+      color: #818cf8;
+      font-size: 0.85rem;
+      vertical-align: super;
+      margin-left: 10px;
+      margin-right: 4px;
+      user-select: none;
+    }
+
+    .bloque-palabras {
+      padding: 2px 4px;
+      border-radius: 6px;
+      transition: background-color 0.15s, color 0.15s;
+      cursor: pointer;
+    }
+
+    .bloque-palabras:hover {
+      background-color: rgba(99, 102, 241, 0.15);
+    }
+
+    .bloque-palabras.leyendo {
+      background-color: var(--accent-color);
+      color: #ffffff !important;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5);
+    }
+
+    /* MODALES */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 300;
+    }
+
+    .modal-contenido {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 28px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 440px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-contenido h3 {
+      margin-top: 0;
+      font-size: 1.3rem;
+    }
+
+    .input-texto {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin-top: 12px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+
+    .input-texto:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .modal-acciones {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-primario {
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-secundario {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    /* BARRAS DE PROGRESO DE AVANCES Y RECOMPENSAS */
+    .grid-gamification {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .box-recompensa {
+      background-color: var(--bg-color);
+      border: 1px solid var(--card-border);
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .box-recompensa .val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-top: 4px;
+      color: #818cf8;
+    }
+
+    .progreso-bar-container {
+      background-color: var(--bg-color);
+      height: 18px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+      border: 1px solid var(--card-border);
+    }
+
+    .progreso-bar-fill {
+      background: linear-gradient(90deg, #818cf8, #c084fc);
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .stat-row strong {
+      color: var(--text-main);
+    }
+
+    .mensaje-error-modal {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ENCABEZADO CON MENÚ Y GAMIFICACIÓN -->
+  <header>
+    <div class="header-left">
+      <button class="btn-icon" id="btnAtras" style="display:none;" onclick="navegarAtras()">⬅️</button>
+      <div>
+        <div class="brand-container" onclick="toggleMenu(event)">
+          <div class="brand-title">YADA BIBLIA</div>
+          <!-- Menú desplegable directamente bajo el logo -->
+          <div class="menu-desplegable" id="menuDesplegable">
+            <button class="menu-item" onclick="abrirModalLogin()">
+              👤 <span class="lblUsuarioMenu">Inicio de sesión</span>
+            </button>
+            <button class="menu-item" onclick="abrirModalAvances()">
+              📊 Mis Avances
+            </button>
+            <button class="menu-item" onclick="toggleDarkMode()">
+              🌓 Modo Oscuro/Claro
+            </button>
+          </div>
+        </div>
+        <div class="ruta-nav" id="rutaNavegacion">Inicio</div>
+      </div>
+    </div>
+
+    <!-- CONTADORES DE GEMAS Y TROFEOS EN EL ENCABEZADO -->
+    <div class="header-right">
+      <div class="badge-recompensa" title="Gemas ganadas (2 por capítulo)">
+        💎 <span id="hdrGemas">0</span>
+      </div>
+      <div class="badge-recompensa" title="Trofeos ganados (1 por libro completo)">
+        🏆 <span id="hdrTrofeos">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main>
+    <!-- VISTA 1: TESTAMENTOS Y PANTALLA DE INICIO -->
+    <div id="vistaTestamentos">
+      <h2 style="margin-top:0;">Selecciona un Testamento</h2>
+      <div class="grid-cards">
+        <div class="card-seleccion" onclick="seleccionarTestamento('AT')">
+          Antiguo Testamento
+        </div>
+        <div class="card-seleccion" onclick="seleccionarTestamento('NT')">
+          Nuevo Testamento
+        </div>
+      </div>
+
+      <!-- MENÚ DE OPCIONES DE LA PANTALLA DE INICIO -->
+      <div class="seccion-inicio-opciones">
+        <h3>Ajustes y Perfil</h3>
+        <div class="grid-opciones-inicio">
+          <button class="btn-opcion-inicio" onclick="abrirModalLogin()">
+            👤 <span class="lblUsuarioMenu">Inicio de sesión</span>
+          </button>
+          <button class="btn-opcion-inicio" onclick="abrirModalAvances()">
+            📊 Mis Avances y Gamificación
+          </button>
+          <button class="btn-opcion-inicio" onclick="toggleDarkMode()">
+            🌓 Modo Oscuro / Claro
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA 2: SELECCIÓN DE LIBROS -->
+    <div id="vistaLibros" class="grid-cards oculto"></div>
+
+    <!-- VISTA 3: LECTURA DE CAPÍTULO -->
+    <div id="vistaLectura" class="oculto">
+      <div class="barra-capitulos" id="barraCapitulos"></div>
+      <div id="vistaCapitulo"></div>
+    </div>
+  </main>
+
+  <!-- CONTROLES FLOTANTES (Sticky Bottom) -->
+  <div id="reproductorFlotante" class="reproductor-flotante oculto">
+    <span style="font-size: 0.85rem; font-weight: 600; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="lblFlotanteCap">Génesis 1</span>
+    <button class="btn-flotante-accion" id="btnFlotantePlay" onclick="toggleAudioCapitulo()">▶️</button>
+    <button class="btn-flotante-accion btn-flotante-detener" onclick="detenerAudio()">⏹️</button>
+  </div>
+
+  <!-- MODAL: LOGIN / MULTIUSUARIO CON CONTRASEÑA -->
+  <div class="modal-overlay oculto" id="modalLogin">
+    <div class="modal-contenido">
+      <h3>Perfil de Usuario</h3>
+      <p style="color: var(--text-muted); margin-bottom: 0;">Ingresa tu usuario y contraseña para guardar tus avances:</p>
+      <input type="text" id="txtUsuario" class="input-texto" placeholder="Usuario (Ej. Juan, María...)">
+      <input type="password" id="txtPassword" class="input-texto" placeholder="Contraseña">
+      <div id="msgErrorLogin" class="mensaje-error-modal">Contraseña incorrecta.</div>
+      <div class="modal-acciones">
+        <button class="btn-secundario" onclick="cerrarModales()">Cancelar</button>
+        <button class="btn-primario" onclick="guardarUsuario()">Ingresar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AVANCES Y GAMIFICACIÓN -->
+  <div class="modal-overlay oculto" id="modalAvances">
+    <div class="modal-contenido">
+      <h3>Progreso y Gamificación</h3>
+
+      <!-- RECOMPENSAS DEL USUARIO -->
+      <div class="grid-gamification">
+        <div class="box-recompensa">
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Gemas Obtenidas</span>
+          <div class="val">💎 <span id="modalGemas">0</span></div>
+        </div>
+        <div class="box-recompensa">
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Libros Completos</span>
+          <div class="val">🏆 <span id="modalTrofeos">0</span></div>
+        </div>
+      </div>
+      
+      <p style="margin-bottom: 5px; font-weight: 600;">Avance General:</p>
+      <div class="progreso-bar-container">
+        <div class="progreso-bar-fill" id="progresoFillGeneral"></div>
+      </div>
+      <small id="lblPorcentajeGeneral" style="display:block; text-align:right; margin-bottom: 18px; color: var(--text-muted);">0% completado</small>
+
+      <div class="stat-row">
+        <span>Antiguo Testamento:</span>
+        <strong id="lblAvanceAT">0 / 929 cap.</strong>
+      </div>
+      <div class="stat-row">
+        <span>Nuevo Testamento:</span>
+        <strong id="lblAvanceNT">0 / 260 cap.</strong>
+      </div>
+
+      <div class="modal-acciones">
+        <button class="btn-primario" onclick="cerrarModales()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CÓDIGO JAVASCRIPT -->
+  <script>
+    const LIBROS_BIBLIA = [
+      // --- ANTIGUO TESTAMENTO (39) ---
+      { id: 'GEN', nombre: 'Génesis', testamento: 'AT', archivo: 'Genesis.txt', caps: 50 },
+      { id: 'EXO', nombre: 'Éxodo', testamento: 'AT', archivo: 'Exodo.txt', caps: 40 },
+      { id: 'LEV', nombre: 'Levítico', testamento: 'AT', archivo: 'Levitico.txt', caps: 27 },
+      { id: 'NUM', nombre: 'Números', testamento: 'AT', archivo: 'Numeros.txt', caps: 36 },
+      { id: 'DEU', nombre: 'Deuteronomio', testamento: 'AT', archivo: 'Deuteronomio.txt', caps: 34 },
+      { id: 'JOS', nombre: 'Josué', testamento: 'AT', archivo: 'Josue.txt', caps: 24 },
+      { id: 'JUE', nombre: 'Jueces', testamento: 'AT', archivo: 'Jueces.txt', caps: 21 },
+      { id: 'RUT', nombre: 'Rut', testamento: 'AT', archivo: 'Rut.txt', caps: 4 },
+      { id: '1SA', nombre: '1 Samuel', testamento: 'AT', archivo: '1Samuel.txt', caps: 31 },
+      { id: '2SA', nombre: '2 Samuel', testamento: 'AT', archivo: '2Samuel.txt', caps: 24 },
+      { id: '1RE', nombre: '1 Reyes', testamento: 'AT', archivo: '1Reyes.txt', caps: 22 },
+      { id: '2RE', nombre: '2 Reyes', testamento: 'AT', archivo: '2Reyes.txt', caps: 25 },
+      { id: '1CR', nombre: '1 Crónicas', testamento: 'AT', archivo: '1Cronicas.txt', caps: 29 },
+      { id: '2CR', nombre: '2 Crónicas', testamento: 'AT', archivo: '2Cronicas.txt', caps: 36 },
+      { id: 'ESD', nombre: 'Esdras', testamento: 'AT', archivo: 'Esdras.txt', caps: 10 },
+      { id: 'NEH', nombre: 'Nehemías', testamento: 'AT', archivo: 'Nehemias.txt', caps: 13 },
+      { id: 'EST', nombre: 'Ester', testamento: 'AT', archivo: 'Ester.txt', caps: 10 },
+      { id: 'JOB', nombre: 'Job', testamento: 'AT', archivo: 'Job.txt', caps: 42 },
+      { id: 'SAL', nombre: 'Salmos', testamento: 'AT', archivo: 'Salmos.txt', caps: 150 },
+      { id: 'PRO', nombre: 'Proverbios', testamento: 'AT', archivo: 'Proverbios.txt', caps: 31 },
+      { id: 'ECC', nombre: 'Eclesiastés', testamento: 'AT', archivo: 'Eclesiastes.txt', caps: 12 },
+      { id: 'CAN', nombre: 'Cantares', testamento: 'AT', archivo: 'Cantares.txt', caps: 8 },
+      { id: 'ISA', nombre: 'Isaías', testamento: 'AT', archivo: 'Isaias.txt', caps: 66 },
+      { id: 'JER', nombre: 'Jeremías', testamento: 'AT', archivo: 'Jeremias.txt', caps: 52 },
+      { id: 'LAM', nombre: 'Lamentaciones', testamento: 'AT', archivo: 'Lamentaciones.txt', caps: 5 },
+      { id: 'EZE', nombre: 'Ezequiel', testamento: 'AT', archivo: 'Ezequiel.txt', caps: 48 },
+      { id: 'DAN', nombre: 'Daniel', testamento: 'AT', archivo: 'Daniel.txt', caps: 12 },
+      { id: 'OSE', nombre: 'Oseas', testamento: 'AT', archivo: 'Oseas.txt', caps: 14 },
+      { id: 'JOE', nombre: 'Joel', testamento: 'AT', archivo: 'Joel.txt', caps: 3 },
+      { id: 'AMO', nombre: 'Amós', testamento: 'AT', archivo: 'Amos.txt', caps: 9 },
+      { id: 'ABD', nombre: 'Abdías', testamento: 'AT', archivo: 'Abdias.txt', caps: 1 },
+      { id: 'JON', nombre: 'Jonás', testamento: 'AT', archivo: 'Jonas.txt', caps: 4 },
+      { id: 'MIQ', nombre: 'Miqueas', testamento: 'AT', archivo: 'Miqueas.txt', caps: 7 },
+      { id: 'NAH', nombre: 'Nahúm', testamento: 'AT', archivo: 'Nahum.txt', caps: 3 },
+      { id: 'HAB', nombre: 'Habacuc', testamento: 'AT', archivo: 'Habacuc.txt', caps: 3 },
+      { id: 'SOF', nombre: 'Sofonías', testamento: 'AT', archivo: 'Sofonias.txt', caps: 3 },
+      { id: 'HAG', nombre: 'Hageo', testamento: 'AT', archivo: 'Hageo.txt', caps: 2 },
+      { id: 'ZAC', nombre: 'Zacarías', testamento: 'AT', archivo: 'Zacarias.txt', caps: 14 },
+      { id: 'MAL', nombre: 'Malaquías', testamento: 'AT', archivo: 'Malaquias.txt', caps: 4 },
+
+      // --- NUEVO TESTAMENTO (27) ---
+      { id: 'MAT', nombre: 'Mateo', testamento: 'NT', archivo: 'Mateo.txt', caps: 28 },
+      { id: 'MAR', nombre: 'Marcos', testamento: 'NT', archivo: 'Marcos.txt', caps: 16 },
+      { id: 'LUC', nombre: 'Lucas', testamento: 'NT', archivo: 'Lucas.txt', caps: 24 },
+      { id: 'JUA', nombre: 'Juan', testamento: 'NT', archivo: 'Juan.txt', caps: 21 },
+      { id: 'HEC', nombre: 'Hechos', testamento: 'NT', archivo: 'Hechos.txt', caps: 28 },
+      { id: 'ROM', nombre: 'Romanos', testamento: 'NT', archivo: 'Romanos.txt', caps: 16 },
+      { id: '1CO', nombre: '1 Corintios', testamento: 'NT', archivo: '1Corintios.txt', caps: 16 },
+      { id: '2CO', nombre: '2 Corintios', testamento: 'NT', archivo: '2Corintios.txt', caps: 13 },
+      { id: 'GAL', nombre: 'Gálatas', testamento: 'NT', archivo: 'Galatas.txt', caps: 6 },
+      { id: 'EFE', nombre: 'Efesios', testamento: 'NT', archivo: 'Efesios.txt', caps: 6 },
+      { id: 'FIL', nombre: 'Filipenses', testamento: 'NT', archivo: 'Filipenses.txt', caps: 4 },
+      { id: 'COL', nombre: 'Colosenses', testamento: 'NT', archivo: 'Colosenses.txt', caps: 4 },
+      { id: '1TS', nombre: '1 Tesalonicenses', testamento: 'NT', archivo: '1Tesalonicenses.txt', caps: 5 },
+      { id: '2TS', nombre: '2 Tesalonicenses', testamento: 'NT', archivo: '2Tesalonicenses.txt', caps: 3 },
+      { id: '1TI', nombre: '1 Timoteo', testamento: 'NT', archivo: '1Timoteo.txt', caps: 6 },
+      { id: '2TI', nombre: '2 Timoteo', testamento: 'NT', archivo: '2Timoteo.txt', caps: 4 },
+      { id: '*****', nombre: 'Tito', testamento: 'NT', archivo: 'Tito.txt', caps: 3 },
+      { id: 'FLM', nombre: 'Filemón', testamento: 'NT', archivo: 'Filemon.txt', caps: 1 },
+      { id: 'HEB', nombre: 'Hebreos', testamento: 'NT', archivo: 'Hebreos.txt', caps: 13 },
+      { id: 'SAN', nombre: 'Santiago', testamento: 'NT', archivo: 'Santiago.txt', caps: 5 },
+      { id: '1PE', nombre: '1 Pedro', testamento: 'NT', archivo: '1Pedro.txt', caps: 5 },
+      { id: '2PE', nombre: '2 Pedro', testamento: 'NT', archivo: '2Pedro.txt', caps: 3 },
+      { id: '1JU', nombre: '1 Juan', testamento: 'NT', archivo: '1Juan.txt', caps: 5 },
+      { id: '2JU', nombre: '2 Juan', testamento: 'NT', archivo: '2Juan.txt', caps: 1 },
+      { id: '3JU', nombre: '3 Juan', testamento: 'NT', archivo: '3Juan.txt', caps: 1 },
+      { id: 'JUD', nombre: 'Judas', testamento: 'NT', archivo: 'Judas.txt', caps: 1 },
+      { id: 'APO', nombre: 'Apocalipsis', testamento: 'NT', archivo: 'Apocalipsis.txt', caps: 22 }
+    ];
+
+    let estado = {
+      paso: 'TESTAMENTOS',
+      testamento: null,
+      libroActual: null,
+      capituloActual: 1,
+      datosLibro: {}
+    };
+
+    let usuarioActual = "Invitado";
+    let capitulosLeidos = new Set();
+
+    let sintesis = window.speechSynthesis;
+    let leyendoActual = false;
+
+    // Configuración de audio por fragmentos
+    let listaBloques = []; 
+    let bloqueIndice = 0;
+    let palabrasPorBloque = 4;
+    let velocidadLectura = 1.0;
+
+    /* TEMAS Y MENÚS */
+    function toggleDarkMode() {
+      document.body.classList.toggle('light-theme');
+    }
+
+    function repararTexto(str) {
+      try {
+        return decodeURIComponent(escape(str));
+      } catch (e) {
+        return str;
+      }
+    }
+
+    function toggleMenu(e) {
+      e.stopPropagation();
+      const menu = document.getElementById('menuDesplegable');
+      menu.classList.toggle('activo');
+    }
+
+    function togglePopoverConfig(e) {
+      e.stopPropagation();
+      const popover = document.getElementById('popoverAudioConfig');
+      if (popover) popover.classList.toggle('activo');
+    }
+
+    document.addEventListener('click', () => {
+      const menu = document.getElementById('menuDesplegable');
+      if (menu) menu.classList.remove('activo');
+      const popover = document.getElementById('popoverAudioConfig');
+      if (popover) popover.classList.remove('activo');
+    });
+
+    function cerrarModales() {
+      document.getElementById('modalLogin').classList.add('oculto');
+      document.getElementById('modalAvances').classList.add('oculto');
+      const err = document.getElementById('msgErrorLogin');
+      if (err) err.style.display = 'none';
+    }
+
+    function actualizarEtiquetasUsuario() {
+      const texto = usuarioActual !== "Invitado" ? usuarioActual : 'Inicio de sesión';
+      document.querySelectorAll('.lblUsuarioMenu').forEach(el => {
+        el.innerText = texto;
+      });
+    }
+
+    /* SISTEMA DE GAMIFICACIÓN */
+    function calcularRecompensas() {
+      // 2 Gemas por capítulo leído
+      const gemas = capitulosLeidos.size * 2;
+      let trofeos = 0;
+
+      // Un trofeo por cada libro donde la cantidad de capítulos leídos es igual a los caps totales del libro
+      LIBROS_BIBLIA.forEach(libro => {
+        let capsLeidosLibro = 0;
+        for (let i = 1; i <= libro.caps; i++) {
+          if (capitulosLeidos.has(`${libro.id}_${i}`)) {
+            capsLeidosLibro++;
+          }
+        }
+        if (capsLeidosLibro === libro.caps && libro.caps > 0) {
+          trofeos++;
+        }
+      });
+
+      return { gemas, trofeos };
+    }
+
+    function actualizarGamificaciónEnUI() {
+      const { gemas, trofeos } = calcularRecompensas();
+      
+      // Header
+      document.getElementById('hdrGemas').innerText = gemas;
+      document.getElementById('hdrTrofeos').innerText = trofeos;
+
+      // Modal
+      document.getElementById('modalGemas').innerText = gemas;
+      document.getElementById('modalTrofeos').innerText = trofeos;
+    }
+
+    /* GESTIÓN DE USUARIOS, CONTRASEÑA Y MULTI-SESIÓN */
+    function abrirModalLogin() {
+      cerrarModales();
+      const input = document.getElementById('txtUsuario');
+      const inputPass = document.getElementById('txtPassword');
+      input.value = usuarioActual !== "Invitado" ? usuarioActual : "";
+      inputPass.value = "";
+      document.getElementById('modalLogin').classList.remove('oculto');
+    }
+
+    function guardarUsuario() {
+      const input = document.getElementById('txtUsuario');
+      const inputPass = document.getElementById('txtPassword');
+      const msgError = document.getElementById('msgErrorLogin');
+      
+      const nombre = input.value.trim();
+      const password = inputPass.value.trim();
+
+      msgError.style.display = 'none';
+
+      if (!nombre) {
+        usuarioActual = "Invitado";
+        localStorage.setItem('yada_biblia_usuario', "Invitado");
+        actualizarEtiquetasUsuario();
+        cargarCapitulosLeidos();
+        cerrarModales();
+        return;
+      }
+
+      if (!password) {
+        msgError.innerText = "Por favor ingresa una contraseña.";
+        msgError.style.display = 'block';
+        return;
+      }
+
+      const passGuardada = localStorage.getItem(`yada_biblia_pass_${nombre}`);
+
+      if (passGuardada) {
+        if (passGuardada !== password) {
+          msgError.innerText = "Contraseña incorrecta.";
+          msgError.style.display = 'block';
+          return;
+        }
+      } else {
+        localStorage.setItem(`yada_biblia_pass_${nombre}`, password);
+      }
+
+      usuarioActual = nombre;
+      localStorage.setItem('yada_biblia_usuario', usuarioActual);
+      actualizarEtiquetasUsuario();
+
+      cargarCapitulosLeidos();
+      cerrarModales();
+    }
+
+    function cargarUsuario() {
+      const usr = localStorage.getItem('yada_biblia_usuario');
+      if (usr) {
+        usuarioActual = usr;
+        actualizarEtiquetasUsuario();
+      }
+    }
+
+    function obtenerClaveAvance() {
+      return `yada_biblia_leidos_${usuarioActual}`;
+    }
+
+    function registrarCapituloLeido(libroId, capitulo) {
+      const claveVer = `${libroId}_${capitulo}`;
+      if (!capitulosLeidos.has(claveVer)) {
+        capitulosLeidos.add(claveVer);
+        localStorage.setItem(obtenerClaveAvance(), JSON.stringify(Array.from(capitulosLeidos)));
+        actualizarGamificaciónEnUI();
+      }
+    }
+
+    function cargarCapitulosLeidos() {
+      const datos = localStorage.getItem(obtenerClaveAvance());
+      if (datos) {
+        try {
+          const arr = JSON.parse(datos);
+          capitulosLeidos = new Set(arr);
+        } catch (e) {
+          console.error("Error al cargar avance:", e);
+          capitulosLeidos = new Set();
+        }
+      } else {
+        capitulosLeidos = new Set();
+      }
+      actualizarGamificaciónEnUI();
+    }
+
+    function abrirModalAvances() {
+      cerrarModales();
+
+      const totalAT = 929;
+      const totalNT = 260;
+      const totalBiblia = totalAT + totalNT;
+
+      let leidosAT = 0;
+      let leidosNT = 0;
+
+      capitulosLeidos.forEach(clave => {
+        const libroId = clave.split('_')[0];
+        const libro = LIBROS_BIBLIA.find(l => l.id === libroId);
+        if (libro) {
+          if (libro.testamento === 'AT') leidosAT++;
+          if (libro.testamento === 'NT') leidosNT++;
+        }
+      });
+
+      const leidosTotal = leidosAT + leidosNT;
+      const porcentaje = Math.round((leidosTotal / totalBiblia) * 100);
+
+      document.getElementById('progresoFillGeneral').style.width = `${porcentaje}%`;
+      document.getElementById('lblPorcentajeGeneral').innerText = `${porcentaje}% completado (${leidosTotal} de ${totalBiblia} capítulos)`;
+      document.getElementById('lblAvanceAT').innerText = `${leidosAT} / ${totalAT} capítulos`;
+      document.getElementById('lblAvanceNT').innerText = `${leidosNT} / ${totalNT} capítulos`;
+
+      actualizarGamificaciónEnUI();
+      document.getElementById('modalAvances').classList.remove('oculto');
+    }
+
+    /* POSICIÓN Y NAVEGACIÓN */
+    function guardarEstadoLectura() {
+      if (estado.libroActual) {
+        const datosGuardados = {
+          libroId: estado.libroActual.id,
+          capitulo: estado.capituloActual,
+          testamento: estado.testamento
+        };
+        localStorage.setItem(`yada_biblia_posicion_${usuarioActual}`, JSON.stringify(datosGuardados));
+      }
+    }
+
+    function limpiarEstadoLectura() {
+      localStorage.removeItem(`yada_biblia_posicion_${usuarioActual}`);
+    }
+
+    async function restaurarEstadoLectura() {
+      const guardado = localStorage.getItem(`yada_biblia_posicion_${usuarioActual}`);
+      if (!guardado) return false;
+
+      try {
+        const { libroId, capitulo, testamento } = JSON.parse(guardado);
+        const libro = LIBROS_BIBLIA.find(l => l.id === libroId);
+
+        if (libro) {
+          estado.testamento = testamento;
+          await cargarYMostrarLibro(libro, capitulo);
+          return true;
+        }
+      } catch (e) {
+        console.error("Error al restaurar posición:", e);
+      }
+      return false;
+    }
+
+    function actualizarNavegacion() {
+      const btnAtras = document.getElementById('btnAtras');
+      const ruta = document.getElementById('rutaNavegacion');
+
+      if (estado.paso === 'TESTAMENTOS') {
+        btnAtras.style.display = 'none';
+        ruta.innerText = 'Inicio';
+      } else if (estado.paso === 'LIBROS') {
+        btnAtras.style.display = 'inline-block';
+        ruta.innerText = `Inicio > ${estado.testamento === 'AT' ? 'Antiguo Testamento' : 'Nuevo Testamento'}`;
+      } else if (estado.paso === 'LECTURA') {
+        btnAtras.style.display = 'inline-block';
+        ruta.innerText = `Inicio > ${estado.libroActual.nombre}`;
+      }
+    }
+
+    function navegarAtras() {
+      detenerAudio();
+      if (estado.paso === 'LECTURA') {
+        mostrarVistaLibros(estado.testamento);
+      } else if (estado.paso === 'LIBROS') {
+        limpiarEstadoLectura();
+        mostrarVistaTestamentos();
+      }
+    }
+
+    function mostrarVistaTestamentos() {
+      estado.paso = 'TESTAMENTOS';
+      document.getElementById('vistaTestamentos').classList.remove('oculto');
+      document.getElementById('vistaLibros').classList.add('oculto');
+      document.getElementById('vistaLectura').classList.add('oculto');
+      actualizarNavegacion();
+    }
+
+    function seleccionarTestamento(testamento) {
+      estado.testamento = testamento;
+      mostrarVistaLibros(testamento);
+    }
+
+    function mostrarVistaLibros(testamento) {
+      estado.paso = 'LIBROS';
+      const cont = document.getElementById('vistaLibros');
+      cont.innerHTML = '';
+
+      const librosFiltrados = LIBROS_BIBLIA.filter(l => l.testamento === testamento);
+
+      librosFiltrados.forEach(libro => {
+        const card = document.createElement('div');
+        card.className = 'card-seleccion';
+
+        // Comprobar si el libro está completo para mostrar el trofeo
+        let leidos = 0;
+        for (let i = 1; i <= libro.caps; i++) {
+          if (capitulosLeidos.has(`${libro.id}_${i}`)) leidos++;
+        }
+        if (leidos === libro.caps && libro.caps > 0) {
+          card.classList.add('completado');
+        }
+
+        card.innerText = libro.nombre;
+        card.onclick = () => cargarYMostrarLibro(libro, 1);
+        cont.appendChild(card);
+      });
+
+      document.getElementById('vistaTestamentos').classList.add('oculto');
+      document.getElementById('vistaLibros').classList.remove('oculto');
+      document.getElementById('vistaLectura').classList.add('oculto');
+      actualizarNavegacion();
+    }
+
+    /* CARGA Y LECTURA DE ARCHIVOS TXT */
+    async function cargarYMostrarLibro(libro, capituloAIniciar = 1) {
+      detenerAudio();
+      estado.libroActual = libro;
+      estado.paso = 'LECTURA';
+
+      document.getElementById('vistaTestamentos').classList.add('oculto');
+      document.getElementById('vistaLibros').classList.add('oculto');
+      document.getElementById('vistaLectura').classList.remove('oculto');
+      actualizarNavegacion();
+
+      const vista = document.getElementById('vistaCapitulo');
+      vista.innerHTML = `<p style="text-align:center; color: var(--text-muted);">Cargando ${libro.nombre}...</p>`;
+
+      try {
+        const respuesta = await fetch(libro.archivo);
+        if (!respuesta.ok) throw new Error(`No se encontró el archivo ${libro.archivo}`);
+
+        const buffer = await respuesta.arrayBuffer();
+        let texto = new TextDecoder('utf-8').decode(buffer);
+        if (texto.includes('Ã')) {
+          texto = repararTexto(texto);
+        }
+
+        estado.datosLibro = {};
+
+        texto.split('\n').forEach(linea => {
+          const lineaLimpia = linea.trim();
+          if (!lineaLimpia) return;
+
+          const match = lineaLimpia.match(/\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*['"](.*)['"]\s*\)/);
+          if (match) {
+            const cap = parseInt(match[2]);
+            const ver = parseInt(match[3]);
+            let txt = match[4];
+
+            if (txt.includes('Ã')) {
+              txt = repararTexto(txt);
+            }
+
+            if (!estado.datosLibro[cap]) estado.datosLibro[cap] = [];
+            estado.datosLibro[cap].push({ versiculo: ver, texto: txt });
+          }
+        });
+
+        construirBarraCapitulos();
+        mostrarCapitulo(capituloAIniciar);
+
+      } catch (err) {
+        vista.innerHTML = `<p style="color:#ef4444; text-align:center;">Error: ${err.message}<br><small>Verifica la coincidencia de nombre de archivo.</small></p>`;
+      }
+    }
+
+    function construirBarraCapitulos() {
+      const barra = document.getElementById('barraCapitulos');
+      barra.innerHTML = '';
+
+      Object.keys(estado.datosLibro).map(Number).sort((a, b) => a - b).forEach(cap => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-cap';
+        btn.id = `btn-cap-${cap}`;
+        
+        // Indicador si el capítulo ya fue leído
+        const yaLeido = capitulosLeidos.has(`${estado.libroActual.id}_${cap}`);
+        btn.innerText = yaLeido ? `${cap} ✓` : cap;
+
+        btn.onclick = () => mostrarCapitulo(cap);
+        barra.appendChild(btn);
+      });
+    }
+
+    function mostrarCapitulo(numCap) {
+      detenerAudio();
+      estado.capituloActual = numCap;
+      guardarEstadoLectura(); 
+      registrarCapituloLeido(estado.libroActual.id, numCap); // Otorga las gemas/recompensas
+
+      const vista = document.getElementById('vistaCapitulo');
+      const versiculos = estado.datosLibro[numCap] || [];
+
+      document.querySelectorAll('.btn-cap').forEach(b => b.classList.remove('activo'));
+      const btnActivo = document.getElementById(`btn-cap-${numCap}`);
+      if (btnActivo) {
+        btnActivo.classList.add('activo');
+        btnActivo.innerText = `${numCap} ✓`;
+      }
+
+      document.getElementById('lblFlotanteCap').innerText = `${estado.libroActual.nombre} ${numCap}`;
+
+      let html = `
+        <div class="header-capitulo">
+          <h3 style="margin:0; font-size:1.4rem;">${estado.libroActual.nombre} ${numCap}</h3>
+          <div class="audio-controles">
+            <button class="btn-audio-global" id="btnAudioGlobal" onclick="toggleAudioCapitulo()">
+              🔊 Leer Capítulo
+            </button>
+            <button class="btn-icon" onclick="togglePopoverConfig(event)" title="Ajustes de Lectura">
+              ⚙️
+            </button>
+            <div class="popover-config" id="popoverAudioConfig" onclick="event.stopPropagation()">
+              <div class="config-group">
+                <label for="selPalabras">Bloque de lectura:</label>
+                <select id="selPalabras" class="select-config" onchange="cambiarTamanoBloque(this.value)">
+                  <option value="1">1 palabra</option>
+                  <option value="2">2 palabras</option>
+                  <option value="3">3 palabras</option>
+                  <option value="4" selected>4 palabras</option>
+                  <option value="5">5 palabras</option>
+                  <option value="6">6 palabras</option>
+                </select>
+              </div>
+              <div class="config-group">
+                <label for="selVelocidad">Velocidad de voz:</label>
+                <select id="selVelocidad" class="select-config" onchange="cambiarVelocidad(this.value)">
+                  <option value="0.75">0.75x (Lenta)</option>
+                  <option value="1.0" selected>1.0x (Normal)</option>
+                  <option value="1.25">1.25x (Rápida)</option>
+                  <option value="1.5">1.5x (Muy rápida)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bloque-texto-contenedor" id="contenedorTextoBloques"></div>
+      `;
+
+      vista.innerHTML = html;
+      generarBloquesTexto(versiculos);
+    }
+
+    function cambiarTamanoBloque(val) {
+      palabrasPorBloque = parseInt(val);
+      detenerAudio();
+      generarBloquesTexto(estado.datosLibro[estado.capituloActual] || []);
+    }
+
+    function cambiarVelocidad(val) {
+      velocidadLectura = parseFloat(val);
+      if (sintesis.speaking && !sintesis.paused) {
+        const idxActual = bloqueIndice;
+        detenerAudio();
+        reproducirBloquesDesde(idxActual);
+      }
+    }
+
+    function generarBloquesTexto(versiculos) {
+      const contenedor = document.getElementById('contenedorTextoBloques');
+      if (!contenedor) return;
+
+      contenedor.innerHTML = '';
+      listaBloques = [];
+      let globalIndex = 0;
+
+      versiculos.forEach(v => {
+        const numSpan = document.createElement('span');
+        numSpan.className = 'num-ver-inline';
+        numSpan.innerText = v.versiculo;
+        contenedor.appendChild(numSpan);
+
+        const palabras = v.texto.split(/\s+/).filter(p => p.length > 0);
+
+        for (let i = 0; i < palabras.length; i += palabrasPorBloque) {
+          const subArray = palabras.slice(i, i + palabrasPorBloque);
+          const textoBloque = subArray.join(' ');
+
+          const spanBloque = document.createElement('span');
+          spanBloque.className = 'bloque-palabras';
+          spanBloque.id = `bloque-${globalIndex}`;
+          spanBloque.innerText = textoBloque + ' ';
+
+          const idxCapturado = globalIndex;
+          spanBloque.onclick = () => {
+            detenerAudio();
+            reproducirBloquesDesde(idxCapturado);
+          };
+
+          contenedor.appendChild(spanBloque);
+
+          listaBloques.push({
+            id: globalIndex,
+            texto: textoBloque,
+            versiculo: v.versiculo
+          });
+
+          globalIndex++;
+        }
+      });
+    }
+
+    /* MOTOR DE AUDIO (SPEECH SYNTHESIS POR BLOQUES) */
+    function obtenerVozEspanol() {
+      if (!sintesis) return null;
+      const voces = sintesis.getVoices();
+      return voces.find(v => v.lang.startsWith('es')) || voces[0];
+    }
+
+    function detenerAudio() {
+      if (sintesis) sintesis.cancel();
+      leyendoActual = false;
+      document.querySelectorAll('.bloque-palabras').forEach(el => el.classList.remove('leyendo'));
+      actualizarBotonGlobal('🔊 Leer Capítulo');
+      document.getElementById('reproductorFlotante').classList.add('oculto');
+    }
+
+    function actualizarBotonGlobal(texto) {
+      const btn = document.getElementById('btnAudioGlobal');
+      if (btn) btn.innerHTML = texto;
+
+      const btnFlotante = document.getElementById('btnFlotantePlay');
+      if (btnFlotante) {
+        btnFlotante.innerText = (sintesis.speaking && !sintesis.paused) ? '⏸️' : '▶️';
+      }
+    }
+
+    function resaltarBloque(id) {
+      document.querySelectorAll('.bloque-palabras').forEach(el => el.classList.remove('leyendo'));
+      const el = document.getElementById(`bloque-${id}`);
+      if (el) {
+        el.classList.add('leyendo');
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function toggleAudioCapitulo() {
+      if (!sintesis) return;
+
+      if (sintesis.speaking && !sintesis.paused) {
+        sintesis.pause();
+        actualizarBotonGlobal('▶️ Reanudar');
+      } else if (sintesis.paused) {
+        sintesis.resume();
+        actualizarBotonGlobal('⏸️ Pausar');
+      } else {
+        reproducirBloquesDesde(0);
+      }
+    }
+
+    function reproducirBloquesDesde(index) {
+      detenerAudio();
+      if (!listaBloques || index >= listaBloques.length) return;
+
+      leyendoActual = true;
+      document.getElementById('reproductorFlotante').classList.remove('oculto');
+      actualizarBotonGlobal('⏸️️ Pausar');
+
+      const leerSiguiente = (idx) => {
+        if (!leyendoActual || idx >= listaBloques.length) {
+          detenerAudio();
+          return;
+        }
+
+        bloqueIndice = idx;
+        const b = listaBloques[idx];
+        const mensaje = new SpeechSynthesisUtterance(b.texto);
+        mensaje.lang = 'es-ES';
+        mensaje.rate = velocidadLectura;
+
+        const voz = obtenerVozEspanol();
+        if (voz) mensaje.voice = voz;
+
+        mensaje.onstart = () => resaltarBloque(b.id);
+        mensaje.onend = () => {
+          if (leyendoActual) leerSiguiente(idx + 1);
+        };
+        mensaje.onerror = () => detenerAudio();
+
+        sintesis.speak(mensaje);
+      };
+
+      leerSiguiente(index);
+    }
+
+    if (speechSynthesis && speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = obtenerVozEspanol;
+    }
+
+    /* INICIALIZACIÓN */
+    window.addEventListener('DOMContentLoaded', () => {
+      cargarUsuario();
+      cargarCapitulosLeidos();
+      restaurarEstadoLectura();
+    });
+  </script>
+</body>
+</html>
